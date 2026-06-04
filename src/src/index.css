@@ -1,0 +1,293 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+:root {
+    /* Brand tokens */
+    --background: 0 0% 100%; /* White */
+    --foreground: 0 0% 12%; /* Deep Charcoal */
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 12%;
+
+    /* Primary brand color: Warm Gold */
+    --primary: 35 38% 64%;
+    --primary-foreground: 0 0% 12%; /* dark text on gold for contrast */
+
+    /* Secondary surface: Soft Beige */
+    --secondary: 40 42% 85%;
+    --secondary-foreground: 0 0% 12%;
+
+    --muted: 40 42% 92%;
+    --muted-foreground: 0 0% 35%;
+
+    /* Accent as Deep Charcoal for emphasis */
+    --accent: 0 0% 12%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 35 38% 64%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 12%;
+    --sidebar-primary: 0 0% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 0 0% 95%;
+    --sidebar-accent-foreground: 0 0% 12%;
+    --sidebar-border: 0 0% 88%;
+    --sidebar-ring: 35 38% 64%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased overflow-x-hidden;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/70 backdrop-blur-lg border border-white/30 shadow-md;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .heading-xl {
+    @apply text-4xl md:text-5xl lg:text-6xl font-display font-semibold tracking-tight;
+  }
+  
+  .heading-lg {
+    @apply text-3xl md:text-4xl font-display font-semibold tracking-tight;
+  }
+  
+  .heading-md {
+    @apply text-2xl md:text-3xl font-display font-semibold tracking-tight;
+  }
+  
+  .heading-sm {
+    @apply text-xl md:text-2xl font-display font-semibold tracking-tight;
+  }
+  
+  .container-padded {
+    @apply container mx-auto px-6 md:px-12;
+  }
+
+  .link-underline {
+    @apply relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 after:bg-current after:transition-all after:duration-300 hover:after:w-full;
+  }
+  
+  .button-transition {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  .luxury-gradient {
+    @apply bg-gold-gradient bg-clip-text text-transparent;
+  }
+
+  .accent-border {
+    @apply border-l-4 border-plum pl-4;
+  }
+  
+  .accent-button {
+    @apply bg-plum text-white hover:bg-plum-dark;
+  }
+  
+  .primary-button {
+    @apply bg-blue-400 hover:bg-blue-500 text-white;
+  }
+  
+  .secondary-button {
+    @apply bg-navy-light hover:bg-navy text-white;
+  }
+  
+  .accent-card {
+    @apply border-t-4 border-plum;
+  }
+  
+  .lutron-button {
+    @apply inline-flex items-center px-6 py-3 border border-foreground/20 hover:border-primary transition-colors;
+  }
+  
+  /* New Luxury UI Components */
+  .luxury-title {
+    @apply font-display font-medium tracking-tight;
+  }
+  
+  .luxury-button {
+    @apply px-8 py-4 bg-black text-white hover:bg-primary transition-colors;
+  }
+  
+  .luxury-border {
+    @apply border-2 border-primary;
+  }
+  
+  .luxury-card {
+    @apply bg-white shadow-lg p-8;
+  }
+  
+  .luxury-gradient-overlay {
+    @apply bg-gradient-to-t from-black/80 via-black/40 to-transparent;
+  }
+  
+  .luxury-image-zoom {
+    @apply overflow-hidden;
+  }
+  
+  .luxury-image-zoom img {
+    @apply transition-transform duration-700 hover:scale-105;
+  }
+  
+  .luxury-vertical-line {
+    @apply w-px h-16 bg-primary/50 mx-auto;
+  }
+  
+  .luxury-horizontal-line {
+    @apply w-12 h-[1px] bg-primary my-6;
+  }
+  
+  .luxury-dot {
+    @apply w-2 h-2 rounded-full bg-primary;
+  }
+  
+  .luxury-dot-outline {
+    @apply w-4 h-4 rounded-full border border-primary;
+  }
+}
+
+@layer utilities {
+  .mask-image-gradient {
+    mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
+  }
+  
+  .animate-delay-100 {
+    animation-delay: 100ms;
+  }
+  
+  .animate-delay-200 {
+    animation-delay: 200ms;
+  }
+  
+  .animate-delay-300 {
+    animation-delay: 300ms;
+  }
+  
+  .animate-delay-400 {
+    animation-delay: 400ms;
+  }
+  
+  .animate-delay-500 {
+    animation-delay: 500ms;
+  }
+  
+  .text-gradient-gold {
+    @apply bg-gold-gradient bg-clip-text text-transparent;
+  }
+  
+  .text-gradient-plum {
+    @apply bg-plum-gradient bg-clip-text text-transparent;
+  }
+  
+  .text-gradient-navy {
+    @apply bg-navy-gradient bg-clip-text text-transparent;
+  }
+  
+  .text-gradient-teal {
+    @apply bg-teal-gradient bg-clip-text text-transparent;
+  }
+  
+  @keyframes slide-up {
+    0% {
+      transform: translateY(30px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  .animate-slide-up {
+    animation: slide-up 0.8s ease forwards;
+  }
+  
+  @keyframes fade-scale {
+    0% {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  .animate-fade-scale {
+    animation: fade-scale 0.8s ease forwards;
+  }
+  
+  @keyframes reveal-line {
+    0% {
+      width: 0;
+    }
+    100% {
+      width: 100%;
+    }
+  }
+  
+  .animate-reveal-line {
+    animation: reveal-line 1s ease forwards;
+  }
+  
+  .parallax-slow {
+    transition-duration: 7000ms;
+    transition-timing-function: ease-out;
+  }
+  
+  .parallax-medium {
+    transition-duration: 5000ms;
+    transition-timing-function: ease-out;
+  }
+  
+  .parallax-fast {
+    transition-duration: 3000ms;
+    transition-timing-function: ease-out;
+  }
+
+  @keyframes marquee {
+    0% {
+      transform: translateX(0%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+  
+  .animate-marquee {
+    animation: marquee 25s linear infinite;
+  }
+}

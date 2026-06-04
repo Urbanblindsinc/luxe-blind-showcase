@@ -1,0 +1,30 @@
+
+{
+  "rewrites": [
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/products", "destination": "/index.html" },
+    { "source": "/products/:category", "destination": "/index.html" },
+    { "source": "/products/:category/:slug", "destination": "/index.html" },
+    { "source": "/quote", "destination": "/index.html" },
+    { "source": "/quote-calculator", "destination": "/index.html" },
+    { "source": "/about", "destination": "/index.html" },
+    { "source": "/inspiration", "destination": "/index.html" },
+    { "source": "/consultation", "destination": "/index.html" },
+    { "source": "/customization", "destination": "/index.html" },
+    { "source": "/why-urban-blinds", "destination": "/index.html" },
+    { "source": "/sustainability", "destination": "/index.html" },
+    { "source": "/careers", "destination": "/index.html" },
+    { "source": "/gallery", "destination": "/index.html" },
+    { "source": "/product-care", "destination": "/index.html" },
+    { "source": "/installation-guides", "destination": "/index.html" },
+    { "source": "/faqs", "destination": "/index.html" },
+    { "source": "/privacy-policy", "destination": "/index.html" },
+    { "source": "/fall-sale", "destination": "/index.html" },
+    { "source": "/eco-friendly-materials", "destination": "/index.html" },
+    { "source": "/smart-home-integration", "destination": "/index.html" },
+    { "source": "/smart-technology", "destination": "/index.html" },
+    { "source": "/dust-repellent-technology", "destination": "/index.html" },
+    { "source": "/advanced-light-control", "destination": "/index.html" },
+    { "source": "/(.*)", "destination": "/" }
+  ]
+}
