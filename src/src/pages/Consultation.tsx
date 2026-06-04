@@ -96,14 +96,15 @@ const Consultation = () => {
                     <div>
                       <p className="text-sm text-muted-foreground">Prefer to talk?</p>
                       <div className="space-y-1">
-                        {phones.all.map((n) => {
-                          const tel = n.replace(/[^+\d]/g, "");
-                          return (
-                            <a key={n} href={`tel:${tel}`} className="text-xl font-medium text-primary hover:underline flex items-center">
-                              {n}
-                            </a>
-                          );
-                        })}
+                        {phones.entries.map((p) => (
+                          <a key={p.display} href={p.href}
+                            className="text-xl font-medium text-primary hover:underline flex items-center gap-2"
+                            target={p.isWhatsApp ? "_blank" : undefined} rel={p.isWhatsApp ? "noopener noreferrer" : undefined}>
+                            <span>{p.flag}</span>
+                            <span>{p.display}</span>
+                            {p.isWhatsApp && <span className="text-sm font-normal opacity-70">(WhatsApp)</span>}
+                          </a>
+                        ))}
                       </div>
                     </div>
                   </div>

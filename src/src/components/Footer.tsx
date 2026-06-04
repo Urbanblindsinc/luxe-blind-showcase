@@ -55,14 +55,14 @@ const Footer = () => {
                   <p className="text-primary-foreground/80 text-sm">Call Us</p>
                   <div className="space-y-1">
                     <div className="space-y-1">
-                      {phones.all.map((n) => {
-                        const tel = n.replace(/[^+\d]/g, "");
-                        return (
-                          <a key={n} href={`tel:${tel}`} className="hover:underline flex items-center">
-                            {n}
-                          </a>
-                        );
-                      })}
+                      {phones.entries.map((p) => (
+                        <a key={p.display} href={p.href} className="hover:underline flex items-center gap-1.5"
+                          target={p.isWhatsApp ? "_blank" : undefined} rel={p.isWhatsApp ? "noopener noreferrer" : undefined}>
+                          <span>{p.flag}</span>
+                          <span>{p.display}</span>
+                          {p.isWhatsApp && <span className="text-xs opacity-70">(WhatsApp)</span>}
+                        </a>
+                      ))}
                     </div>
                   </div>
                 </div>

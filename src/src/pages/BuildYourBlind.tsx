@@ -637,8 +637,8 @@ const BuildYourBlind = () => {
                         </button>
                         <p className="text-center text-xs" style={{ color: MUTED }}>
                           Or call us at{" "}
-                          <a href="tel:4255371584" style={{ color: GOLD }} className="font-medium">
-                            425-537-1584
+                          <a href="tel:+14255371584" style={{ color: GOLD }} className="font-medium">
+                            🇺🇸 425-537-1584
                           </a>
                         </p>
                       </div>

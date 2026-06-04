@@ -18,8 +18,16 @@ const FinalCTA: React.FC = () => {
               <a href={`tel:${phones.primary.replace(/[^+\d]/g, "")}`}>Call Us</a>
             </Button>
           </div>
-          <div className="mt-6 text-sm text-muted-foreground">
-            <p>Call us: {phones.all.join(", ")}</p>
+          <div className="mt-6 flex flex-wrap justify-center gap-4 text-sm text-muted-foreground">
+            {phones.entries.map((p) => (
+              <a key={p.display} href={p.href}
+                className="flex items-center gap-1.5 hover:text-primary transition-colors"
+                target={p.isWhatsApp ? "_blank" : undefined} rel={p.isWhatsApp ? "noopener noreferrer" : undefined}>
+                <span>{p.flag}</span>
+                <span>{p.display}</span>
+                {p.isWhatsApp && <span className="opacity-60">(WhatsApp)</span>}
+              </a>
+            ))}
           </div>
         </div>
       </div>

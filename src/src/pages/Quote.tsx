@@ -23,14 +23,15 @@ const Quote = () => {
       description: "Give us a call to speak with one of our window treatment specialists.",
       info: (
         <div className="space-y-1">
-          {phones.all.map((n) => (
-            <div key={n} className="flex items-center justify-center">
-              {n}
+          {phones.entries.map((p) => (
+            <div key={p.display} className="flex items-center justify-center gap-1.5">
+              <span>{p.flag}</span><span>{p.display}</span>
+              {p.isWhatsApp && <span className="text-xs opacity-60">(WhatsApp)</span>}
             </div>
           ))}
         </div>
       ),
-      links: phones.all.map((n) => ({ href: `tel:${n.replace(/[^+\\d]/g, "")}`, label: `Call ${n}` })),
+      links: phones.entries.map((p) => ({ href: p.href, label: `${p.flag} ${p.display}` })),
       action: "Call now"
     },
     {

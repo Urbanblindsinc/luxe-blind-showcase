@@ -49,14 +49,15 @@ const ContactUsSection: React.FC = () => {
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
                 <Phone className="h-5 w-5 text-primary" />
-                <span>
-                  {phones.all.map((phone, index) => (
-                    <span key={phone}>
-                      {index > 0 && ' | '}
-                      <a href={`tel:${phone}`} className="hover:text-primary transition-colors">
-                        {phone}
-                      </a>
-                    </span>
+                <span className="flex flex-col gap-0.5">
+                  {phones.entries.map((p) => (
+                    <a key={p.display} href={p.href}
+                      className="hover:text-primary transition-colors flex items-center gap-1.5"
+                      target={p.isWhatsApp ? "_blank" : undefined} rel={p.isWhatsApp ? "noopener noreferrer" : undefined}>
+                      <span>{p.flag}</span>
+                      <span>{p.display}</span>
+                      {p.isWhatsApp && <span className="text-xs opacity-60">(WhatsApp)</span>}
+                    </a>
                   ))}
                 </span>
               </div>
