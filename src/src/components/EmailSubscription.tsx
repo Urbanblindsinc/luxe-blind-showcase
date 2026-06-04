@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Mail } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface EmailSubscriptionProps {
   className?: string;
@@ -15,44 +16,37 @@ const EmailSubscription = ({ className = "" }: EmailSubscriptionProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!email || !email.includes('@')) {
+
+    if (!email || !email.includes("@")) {
       toast.error("Please enter a valid email address");
       return;
     }
-    
+
     setIsSubmitting(true);
-    
+
     try {
-      // Store email in localStorage as a basic data storage method
-      const existingEmails = JSON.parse(localStorage.getItem('subscribedEmails') || '[]');
-      
-      if (!existingEmails.includes(email)) {
-        existingEmails.push(email);
-        localStorage.setItem('subscribedEmails', JSON.stringify(existingEmails));
-        
-        // Optional: Send to FormSubmit.co email service
-        // This is just an example, you'd need to set up an account with them
-        const formData = new FormData();
-        formData.append('email', email);
-        
-        // Uncomment and replace YOUR_FORM_ID with your actual FormSubmit form ID
-        // await fetch('https://formsubmit.co/YOUR_FORM_ID', {
-        //   method: 'POST',
-        //   body: formData
-        // });
-        
-        toast.success("Thank you for subscribing to our newsletter!");
-        setEmail("");
-        
-        // Log to console so we can see the collected emails
-        console.log("Subscribed emails:", existingEmails);
-      } else {
-        toast.info("You're already subscribed to our newsletter!");
-      }
+      const idempotencyKey = `subscribe-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+      const { error } = await supabase.functions.invoke("send-email-resend", {
+        body: {
+          templateName: "contact-message",
+          recipientEmail: "urban.blinds.inc@gmail.com",
+          idempotencyKey,
+          templateData: {
+            name: "Newsletter Subscriber",
+            email,
+            phone: "—",
+            product: "Newsletter subscription",
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      toast.success("Thank you for subscribing! We'll be in touch.");
+      setEmail("");
     } catch (error) {
-      console.error("Error submitting email:", error);
-      toast.error("There was an error submitting your email. Please try again.");
+      console.error("Email subscription error:", error);
+      toast.error("There was an error subscribing. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
