@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { sendEmail } from "@/utils/sendEmail";
 import {
   Dialog,
   DialogContent,
@@ -64,49 +64,21 @@ const ConsultationForm = () => {
     try {
       console.log("Sending consultation request with values:", values);
       
-      // Track the form submission
-      const { trackInteraction } = await import("@/utils/trackInteraction");
-      await trackInteraction("Consultation Form Submission", {
-        name: values.name,
+      await sendEmail({
+        subject: `Consultation Request from ${values.name}`,
+        from_name: values.name,
         email: values.email,
         phone: values.phone,
-        productInterest: values.productInterest
-      });
-      
-      const idempotencyKey = `consult-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-      const { error: invokeError } = await supabase.functions.invoke("send-email-resend", {
-        body: {
-          templateName: "contact-message",
-          recipientEmail: "urban.blinds.inc@gmail.com",
-          idempotencyKey,
-          templateData: {
-            source: "Consultation Request",
-            name: values.name,
-            email: values.email,
-            phone: values.phone,
-            productInterest: values.productInterest,
-          },
-        },
+        product_interest: values.productInterest,
       });
 
-      if (!invokeError) {
-        if (typeof window !== 'undefined' && (window as any).gtag) {
-          (window as any).gtag('event', 'conversion', {
-            'send_to': 'AW-17008834849/qFE5CKq60_0YELiQmqUp',
-          });
-        }
-        
-        toast({
-          title: "Consultation Scheduled",
-          description: "We'll contact you shortly to confirm your appointment.",
-        });
-        
-        navigate('/thank-you', { replace: true });
-        
-        form.reset();
-      } else {
-        throw invokeError;
+      if (typeof window !== 'undefined' && (window as any).gtag) {
+        (window as any).gtag('event', 'conversion', { 'send_to': 'AW-17008834849/qFE5CKq60_0YELiQmqUp' });
       }
+
+      toast({ title: "Consultation Scheduled", description: "We'll contact you shortly to confirm your appointment." });
+      navigate('/thank-you', { replace: true });
+      form.reset();
     } catch (error) {
       console.error("Form submission error:", error);
       toast({

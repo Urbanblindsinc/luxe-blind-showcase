@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useCart } from "@/contexts/CartContext";
-import { supabase } from "@/integrations/supabase/client";
+import { sendEmail } from "@/utils/sendEmail";
 import BlindVisualizer3D, { type CassetteColor } from "@/components/BlindVisualizer3D";
 
 // Three.js preview — disabled pending bundler fix; using luxury CSS scene
@@ -167,32 +167,16 @@ const BuildYourBlind = () => {
     try {
       const all = [...savedBlinds, config];
       const summary = all.map((b, i) => `Blind #${i + 1}:\n${blindSummary(b)}`).join("\n\n");
-      const items = all.map(b => {
-        const f = FABRICS.find(x => x.id === b.fabric)!;
-        const p = PRODUCTS.find(x => x.id === b.product)!;
-        const h = HARDWARE.find(x => x.id === b.hardware)!;
-        const o = OPERATIONS.find(x => x.id === b.operation)!;
-        return {
-          id: `${b.product}-${b.fabric}-${b.cassette}-${b.hardware}`,
-          productType: b.product as "zebra" | "roller" | "honeycomb",
-          productName: `${p.name} — ${f.name}`, width: String(b.width), height: String(b.height),
-          casing: (b.cassette === "round" ? "curved" : "square") as "square" | "curved",
-          wrapped: false,
-          operation: (b.operation.startsWith("motor") ? "cordless" : b.operation) as "cordless" | "corded",
-          motor: (b.operation === "motor-smart" ? "matter" : b.operation === "motor-standard" ? "standard" : "none") as "none" | "standard" | "matter",
-          quantity: b.quantity, style: `${h.name} ${b.cassette}${b.fabricInsert ? " + insert" : ""} | ${o.name}`,
-        };
+      await sendEmail({
+        subject: `Build Your Blind Quote from ${contact.name}`,
+        from_name: contact.name,
+        email: contact.email,
+        phone: contact.phone || "—",
+        zip: contact.zip || "—",
+        number_of_blinds: String(all.length),
+        total_quantity: String(all.reduce((s, b) => s + b.quantity, 0)),
+        configuration: summary,
       });
-      const idempotencyKey = `quote-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      const { error } = await supabase.functions.invoke("send-email-resend", {
-        body: {
-          templateName: "quote-request", recipientEmail: "urban.blinds.inc@gmail.com", idempotencyKey,
-          templateData: { name: contact.name, email: contact.email, phone: contact.phone || "—",
-            zip: contact.zip || "—", numberOfBlinds: String(all.length),
-            totalQuantity: String(all.reduce((s, b) => s + b.quantity, 0)), configuration: summary },
-        },
-      });
-      if (error) throw error;
       navigate("/thank-you", { replace: true });
     } catch (e) {
       console.error(e);

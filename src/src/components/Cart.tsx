@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { ShoppingCart, Trash2, Plus, Minus } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
+import { sendEmail } from '@/utils/sendEmail';
 import { useNavigate } from 'react-router-dom';
 
 interface CartProps {
@@ -60,53 +60,26 @@ const Cart = ({ children }: CartProps) => {
     setIsSubmitting(true);
     
     try {
-      // Track the cart quote request
-      const { trackInteraction } = await import("@/utils/trackInteraction");
-      await trackInteraction("Cart Quote Request", {
-        email,
-        phone,
-        itemCount: items.length,
-        promoCode: promoCode || 'None'
+      const promoInfo = promoCode && validatePromoCode(promoCode)
+        ? `${promoCode.toUpperCase()} — 30% OFF MOTORIZED BLINDS`
+        : 'None';
+
+      const configuration = items.map((it: any, i: number) => [
+        `Blind #${i + 1}: ${it.productName || it.name || 'Item'}`,
+        it.width && it.height ? `  Dimensions: ${it.width}" x ${it.height}"` : '',
+        it.casing ? `  Casing: ${it.casing}` : '',
+        it.operation ? `  Operation: ${it.operation}` : '',
+        it.quantity != null ? `  Quantity: ${it.quantity}` : '',
+      ].filter(Boolean).join('\n')).join('\n\n');
+
+      await sendEmail({
+        subject: `Cart Quote Request — ${items.length} blind(s)`,
+        email: email || '—',
+        phone: phone || '—',
+        promo_code: promoInfo,
+        number_of_blinds: String(items.length),
+        configuration,
       });
-      
-      const promoInfo = promoCode && validatePromoCode(promoCode) 
-        ? { promoCode: promoCode.toUpperCase(), discount: '30% OFF MOTORIZED BLINDS - Fall Sale' }
-        : null;
-
-      const configuration = items.map((it: any, i: number) => {
-        const lines = [
-          `Blind #${i + 1}: ${it.productName || it.name || 'Item'}`,
-          it.productCode ? `  Code: ${it.productCode}` : '',
-          it.width && it.height ? `  Dimensions: ${it.width}" x ${it.height}"` : '',
-          it.productType ? `  Type: ${it.productType}` : '',
-          it.casing ? `  Casing: ${it.casing}${it.wrapped ? ' (wrapped)' : ''}` : '',
-          it.operation ? `  Operation: ${it.operation}` : '',
-          it.motor ? `  Motor: ${it.motor}` : '',
-          it.style ? `  Style: ${it.style}` : '',
-          it.quantity != null ? `  Quantity: ${it.quantity}` : '',
-        ].filter(Boolean);
-        return lines.join('\n');
-      }).join('\n\n');
-
-      const idempotencyKey = `cart-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-      const { error } = await supabase.functions.invoke('send-email-resend', {
-        body: {
-          templateName: 'contact-message',
-          recipientEmail: 'urban.blinds.inc@gmail.com',
-          idempotencyKey,
-          templateData: {
-            source: 'Cart Quote Request',
-            email: email || 'Not provided',
-            phone: phone || 'Not provided',
-            promoCode: promoInfo ? `${promoInfo.promoCode} — ${promoInfo.discount}` : 'None',
-            numberOfBlinds: String(items.length),
-            totalQuantity: String(items.reduce((s: number, it: any) => s + (it.quantity || 1), 0)),
-            configuration,
-          },
-        },
-      });
-
-      if (error) throw error;
 
       toast.success('Quote request sent successfully!');
       clearCart();

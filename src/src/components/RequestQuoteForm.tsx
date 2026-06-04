@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useRegion } from "@/hooks/use-region";
-import { supabase } from "@/integrations/supabase/client";
+import { sendEmail } from "@/utils/sendEmail";
 
 const RequestQuoteForm = () => {
   const { toast } = useToast();
@@ -60,26 +60,16 @@ const RequestQuoteForm = () => {
     console.log("Quote form values being submitted:", formData);
     
     try {
-      const idempotencyKey = `req-quote-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-      const { error } = await supabase.functions.invoke("send-email-resend", {
-        body: {
-          templateName: "contact-message",
-          recipientEmail: "urban.blinds.inc@gmail.com",
-          idempotencyKey,
-          templateData: {
-            source: "Quote Request (Contact Page)",
-            name: formData.name,
-            email: formData.email,
-            phone: formData.phone,
-            address: formData.address,
-            subject: formData.subject,
-            message: formData.message,
-          },
-        },
+      await sendEmail({
+        subject: formData.subject || `Quote Request from ${formData.name}`,
+        from_name: formData.name,
+        email: formData.email,
+        phone: formData.phone || "—",
+        address: formData.address || "—",
+        message: formData.message || "—",
       });
 
-      if (!error) {
-        // Show success message
+      {
         toast({
           title: "Message Sent",
           description: "Thank you for reaching out. We'll get back to you shortly.",
@@ -97,8 +87,6 @@ const RequestQuoteForm = () => {
           subject: "",
           message: "",
         });
-      } else {
-        throw error;
       }
     } catch (error) {
       console.error("Form submission error:", error);

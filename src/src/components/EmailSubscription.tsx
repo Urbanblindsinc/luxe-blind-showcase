@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Mail } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { sendEmail } from "@/utils/sendEmail";
 
 interface EmailSubscriptionProps {
   className?: string;
@@ -25,22 +25,12 @@ const EmailSubscription = ({ className = "" }: EmailSubscriptionProps) => {
     setIsSubmitting(true);
 
     try {
-      const idempotencyKey = `subscribe-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-      const { error } = await supabase.functions.invoke("send-email-resend", {
-        body: {
-          templateName: "contact-message",
-          recipientEmail: "urban.blinds.inc@gmail.com",
-          idempotencyKey,
-          templateData: {
-            name: "Newsletter Subscriber",
-            email,
-            phone: "—",
-            product: "Newsletter subscription",
-          },
-        },
+      await sendEmail({
+        subject: "New Newsletter Subscriber",
+        from_name: "Newsletter Subscriber",
+        email,
+        note: "New subscriber from urbanblindsinc.com",
       });
-
-      if (error) throw error;
 
       toast.success("Thank you for subscribing! We'll be in touch.");
       setEmail("");

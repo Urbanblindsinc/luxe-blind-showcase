@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import { useRegion } from "@/hooks/use-region";
-import { supabase } from "@/integrations/supabase/client";
+import { sendEmail } from "@/utils/sendEmail";
 import { toast } from "sonner";
 
 const ContactUsSection: React.FC = () => {
@@ -21,35 +21,13 @@ const ContactUsSection: React.FC = () => {
     };
 
     try {
-      const idempotencyKey = `contact-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-      const { error } = await supabase.functions.invoke('send-email-resend', {
-        body: {
-          templateName: 'contact-message',
-          recipientEmail: 'urban.blinds.inc@gmail.com',
-          idempotencyKey,
-          templateData: data,
-        },
+      await sendEmail({
+        subject: `Contact Form — ${data.name}`,
+        from_name: data.name,
+        email: data.email,
+        phone: data.phone || "—",
+        product: data.product || "—",
       });
-
-      if (error) throw error;
-
-      // Track conversion for Google Analytics/Ads
-      await supabase.functions.invoke('track-conversion', {
-        body: {
-          event_type: 'contact_form_submission',
-          page_url: window.location.href,
-          user_agent: navigator.userAgent
-        }
-      });
-
-      // Optional: Trigger Google Analytics event if gtag is available
-      if (typeof window !== 'undefined' && (window as any).gtag) {
-        (window as any).gtag('event', 'conversion', {
-          send_to: 'AW-CONVERSION_ID/CONVERSION_LABEL', // Replace with your actual conversion ID
-          event_category: 'Contact',
-          event_label: 'Contact Form Submission'
-        });
-      }
 
       toast.success("Message sent successfully! We'll get back to you soon.");
       (e.target as HTMLFormElement).reset();

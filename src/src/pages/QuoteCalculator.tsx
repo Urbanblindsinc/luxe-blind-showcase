@@ -29,7 +29,7 @@ import BlindConfig from "@/components/quote/BlindConfig";
 import ContactForm from "@/components/quote/ContactForm";
 import { quoteFormSchema, defaultBlind } from "@/types/quote";
 import type { BlindFormValues, QuoteFormValues } from "@/types/quote";
-import { supabase } from "@/integrations/supabase/client";
+import { sendEmail } from "@/utils/sendEmail";
 
 import { useNavigate } from "react-router-dom";
 
@@ -87,76 +87,29 @@ const QuoteCalculator = () => {
     setIsSubmitting(true);
     
     try {
-      console.log("Submitting quote request:", data);
-      
-      // Track the form submission
-      const { trackInteraction } = await import("@/utils/trackInteraction");
-      await trackInteraction("Quote Calculator Form Submission", {
-        name: data.contact.name,
-        email: data.contact.email,
-        phone: data.contact.phone,
-        numberOfBlinds: data.blinds.length,
-        promoCode: data.contact.promoCode || 'None'
-      });
-      
-      const formattedBlinds = data.blinds.map((blind, index) => `
-        Blind #${index + 1}:
-        - Type: ${blind.blindType}
-        - Dimensions: ${blind.width}" × ${blind.height}"
-        - Operation: ${blind.operationType}${blind.motorOption ? ` (Motor: ${blind.motorOption})` : ''}
-        - Honeycomb Cell: ${blind.honeycombCell || 'Not applicable'}
-        - Opacity: ${blind.opacity || 'Not specified'}
-        - Style: ${blind.style || 'Not specified'}
-        - Room: ${blind.roomLocation || 'Not specified'}
-        - Notes: ${blind.notes || 'None'}
-      `).join('\n\n');
+      const formattedBlinds = data.blinds.map((blind, index) =>
+        `Blind #${index + 1}: ${blind.blindType} | ${blind.width}" × ${blind.height}" | ${blind.operationType}${blind.motorOption ? ` (${blind.motorOption})` : ''} | Opacity: ${blind.opacity || '—'} | Style: ${blind.style || '—'} | Room: ${blind.roomLocation || '—'}`
+      ).join('\n');
 
-      const promoCodeInfo = data.contact.promoCode && validatePromoCode(data.contact.promoCode) 
-        ? `\n\nPromo Code Applied: ${data.contact.promoCode.toUpperCase()} (30% OFF MOTORIZED BLINDS - Fall Sale)`
-        : '\n\nNo Promo Code Applied';
-      
-      const idempotencyKey = `calc-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-      const { error: invokeError } = await supabase.functions.invoke("send-email-resend", {
-        body: {
-          templateName: "contact-message",
-          recipientEmail: "urban.blinds.inc@gmail.com",
-          idempotencyKey,
-          templateData: {
-            source: "Quote Calculator",
-            name: data.contact.name,
-            email: data.contact.email,
-            phone: data.contact.phone || 'Not provided',
-            address: data.contact.address || 'Not provided',
-            preferredContact: data.contact.preferredContact,
-            promoCode: data.contact.promoCode || 'None',
-            numberOfBlinds: data.blinds.length.toString(),
-            configuration: formattedBlinds + promoCodeInfo,
-          },
-        },
+      const promoText = data.contact.promoCode && validatePromoCode(data.contact.promoCode)
+        ? `${data.contact.promoCode.toUpperCase()} — 30% OFF MOTORIZED BLINDS`
+        : 'None';
+
+      await sendEmail({
+        subject: `Quote Request from ${data.contact.name}`,
+        from_name: data.contact.name,
+        email: data.contact.email,
+        phone: data.contact.phone || '—',
+        address: data.contact.address || '—',
+        preferred_contact: data.contact.preferredContact,
+        promo_code: promoText,
+        number_of_blinds: String(data.blinds.length),
+        configuration: formattedBlinds,
       });
-      
-      // Submit to Google Form (non-blocking)
-      const googleFormUrl = 'https://docs.google.com/forms/d/e/YOUR_GOOGLE_FORM_ID/formResponse';
-      const googleFormData = new FormData();
-      googleFormData.append('entry.NAME_FIELD_ID', data.contact.name);
-      googleFormData.append('entry.EMAIL_FIELD_ID', data.contact.email);
-      googleFormData.append('entry.PHONE_FIELD_ID', data.contact.phone || 'Not provided');
-      googleFormData.append('entry.ADDRESS_FIELD_ID', data.contact.address || 'Not provided');
-      googleFormData.append('entry.BLINDS_FIELD_ID', formattedBlinds + promoCodeInfo);
-      
-      // Submit to Google Form (fire and forget - don't wait for response)
-      fetch(googleFormUrl, {
-        method: 'POST',
-        mode: 'no-cors',
-        body: googleFormData
-      }).catch(err => console.log('Google Form submission attempted'));
-      
-      if (!invokeError) {
+
+      {
         if (typeof window !== 'undefined' && window.gtag) {
-          window.gtag('event', 'conversion', {
-            'send_to': 'AW-17008834849/P_IsCLSj9YwZEOWG1Zw',
-          });
-          console.log('Conversion tracked successfully');
+          window.gtag('event', 'conversion', { 'send_to': 'AW-17008834849/P_IsCLSj9YwZEOWG1Zw' });
         }
         
         navigate('/thank-you', { replace: true });
@@ -175,8 +128,6 @@ const QuoteCalculator = () => {
         setExpandedBlind(0);
         setPromoCode("");
         setIsValidPromo(null);
-      } else {
-        throw invokeError;
       }
     } catch (error) {
       console.error("Error submitting quote request:", error);
