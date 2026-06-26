@@ -32,6 +32,7 @@ import WindowMeasurement from "./pages/WindowMeasurement";
 
 import ThankYou from "./pages/ThankYou";
 import BuildYourBlind from "./pages/BuildYourBlind";
+import ConfirmOrder from "./pages/ConfirmOrder";
 import Unsubscribe from "./pages/Unsubscribe";
 
 const queryClient = new QueryClient({
@@ -83,6 +84,7 @@ const App = () => (
         
         <Route path="/thank-you" element={<ThankYou />} />
         <Route path="/build-your-blind" element={<BuildYourBlind />} />
+        <Route path="/confirm-order" element={<ConfirmOrder />} />
         <Route path="/unsubscribe" element={<Unsubscribe />} />
         <Route path="*" element={<NotFound />} />
         </Routes>
